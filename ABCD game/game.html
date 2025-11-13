@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Quest Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .game-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+        }
+        
+        .game-section {
+            flex: 1; 
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff6b6b;
+        }
+
+        .player-info {
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .player-info p {
+            margin: 8px 0;
+            font-size: 1rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .adventure-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .quest-display {
+            width: 100%;
+            height: 200px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border: 3px dashed #ff6b6b;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-image {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+        }
+
+        .quest-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        /* MODIFICATION: New style for the hidden quest */
+        .quest-display.hidden {
+            display: none;
+        }
+
+        /* MODIFICATION: This is where the new buttons live */
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+            gap: 10px; /* Added gap */
+        }
+
+        .action-btn {
+            flex: 1;
+            margin: 0 5px;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .events-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .event-log {
+            height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .event-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f1ff;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .theme-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .virtual-identity { background: #e3f2fd; color: #1976d2; }
+        .event-driven { background: #f3e5f5; color: #7b1fa2; }
+        .interoperability { background: #e8f5e8; color: #388e3c; }
+        .design-principles { background: #fff3e0; color: #f57c00; }
+
+        .theme-explanation {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .theme-card.interoperability-card {
+            border-left-color: #388e3c;
+        }
+        .theme-card.interoperability-card .theme-title {
+            color: #388e3c;
+        }
+        .theme-card.event-card {
+            border-left-color: #7b1fa2;
+        }
+        .theme-card.event-card .theme-title {
+            color: #7b1fa2;
+        }
+
+        .theme-title {
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 8px;
+        }
+
+        .theme-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .api-response {
+            background: #e9f7ef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #28a745;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Removed quest-progress styles as it's no longer used */
+
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Heart Quest Adventure</h1>
+            <p>Embark on a quest to discover magical hearts!</p>
+        </div>
+
+        <div class="game-content">
+            <div class="game-area">
+                <div class="game-section">
+                    
+                    <h2 class="section-title">Adventurer Identity</h2>
+                    <div class="player-info" id="playerInfo">
+                        <p>Loading adventurer...</p>
+                    </div>
+
+                    <h2 class="section-title">Heart Quest</h2>
+                    
+                    <div class="adventure-area">
+                        <div class="quest-display" id="questDisplay">
+                            <div class="quest-overlay" id="questOverlay">Click "Start Game" to begin!</div>
+                        </div>
+                        
+                        <div class="game-controls">
+                            <button class="btn action-btn" id="startBtn">Start Game</button>
+                            <button class="btn action-btn" id="stopBtn" disabled>Stop Game</button>
+                        </div>
+                    </div>
+                    
+                    <div class="game-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="heartsFound">0</div>
+                            <div class="stat-label">Round</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="adventurerScore">0</div>
+                            <div class="stat-label">Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="theme-card event-card">
+                        <div class="theme-title">Event-Driven Programming</div>
+                        <div class="theme-description">
+                            The game responds to user interactions (start,stop) with event handlers that trigger API calls and game state updates.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="events-section">
+                <h2 class="section-title">Adventure Log & API Responses</h2>
+                <div class="event-log" id="eventLog">
+                    <div class="event-item">Welcome, Adventurer! Loading your quest...</div>
+                </div>
+                <div class="api-response" id="apiResponse">
+                    API responses will appear here after exploring for hearts.
+                </div>
+                
+                <div class="theme-card interoperability-card">
+                    <div class="theme-title">Interoperability</div>
+                    <div class="theme-description">
+                        This game communicates with the external Heart API to fetch puzzle data, demonstrating system-to-system communication.
+                    </div>
+                </div>
+            </div>
+
+            <div class="theme-explanation">
+                <h2 class="section-title">Software Architecture Themes</h2>
+                <div class="themes-grid">
+                    <div class="theme-card">
+                        <div class="theme-title">Low Coupling & High Cohesion</div>
+                        <div class="theme-description">
+                            The game code is organized into focused modules with clear responsibilities and minimal dependencies between them.
+                        </div>
+                    </div>
+                    <div class="theme-card event-card">
+                        <div class="theme-title">Event-Driven Programming</div>
+                        <div class="theme-description">
+                            User interactions trigger events that are handled by dedicated functions, creating a responsive adventure experience.
+                        </div>
+                    </div>
+                    <div class="theme-card interoperability-card">
+                        <div class="theme-title">Interoperability</div>
+                        <div class="theme-description">
+                            The game communicates with external systems (Heart API) using standard web protocols and data formats.
+                        </div>
+                    </div>
+                    <div class="theme-card">
+                        <div class="theme-title">Virtual Identity</div>
+                        <div class="theme-description">
+                            Player authentication, class selection, session management, and identity tracking create a personalized gaming experience.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================================================
+        // SOFTWARE DESIGN PRINCIPLES: Low Coupling & High Cohesion
+        // =============================================================================
+        // The AdventureGame class demonstrates HIGH COHESION by having a single 
+        // responsibility: coordinating the overall game flow and state management.
+        // It has LOW COUPLING as it delegates specific tasks to specialized classes.
+        class AdventureGame {
+            constructor() {
+                // VIRTUAL IDENTITY: Player identity management
+                this.adventurer = null;
+                
+                // SOFTWARE DESIGN: Separation of concerns - game state managed separately
+                this.gameState = new QuestState();
+                
+                // INTEROPERABILITY: External API communication handled by dedicated service
+                this.heartService = new HeartAPIService();
+                
+                // SOFTWARE DESIGN: UI management separated from game logic
+                this.uiController = new AdventureUIController(this);
+                
+                // EVENT-DRIVEN: Event coordination handled by dedicated class
+                this.eventCoordinator = new AdventureEventCoordinator(this);
+                
+                this.score = 0;
+                this.currentQuest = null;
+                this.isGameActive = false;
+            }
+
+            // VIRTUAL IDENTITY: Creates and manages player identity with unique session data
+            createAdventurer(name, adventurerClass) {
+                this.adventurer = {
+                    id: `adventurer_${name}_${Date.now()}`,
+                    name: name,
+                    class: adventurerClass,
+                    sessionStart: new Date().toISOString(),
+                    isAuthenticated: true,
+                    questsCompleted: 0
+                };
+                
+                // EVENT-DRIVEN: Logging user identity creation event
+                this.uiController.logEvent(`🎮 Virtual Identity: Adventurer ${name} (Roll No: ${adventurerClass}) created!`, "virtual-identity");
+                this.uiController.updateAdventurerInfo(this.adventurer);
+                this.uiController.setupInitialUI(); 
+                
+                return this.adventurer;
+            }
+
+            // INTEROPERABILITY: Initializes connection to external Heart API service
+            async prepareGame() {
+                if (!this.adventurer) {
+                    throw new Error("Adventurer identity not established");
+                }
+                // EVENT-DRIVEN: Logging API connection attempt
+                this.uiController.logEvent("🕹️ Preparing adventure... API connecting.", "event-driven");
+                try {
+                    // INTEROPERABILITY: Establishing connection to external service
+                    await this.heartService.initialize();
+                    this.uiController.logEvent("✅ API Connected. Ready to start!", "event-driven");
+                } catch (error) {
+                    this.uiController.logEvent(`❌ Failed to start adventure: ${error.message}`, "event-driven");
+                    throw error;
+                }
+            }
+            
+            
+            // EVENT-DRIVEN: Main game loop triggered by user interaction
+async nextQuest() {
+    // Stop the loop if the game is no longer active
+    if (!this.isGameActive) return;
+
+    try {
+        // EVENT-DRIVEN: Logging the start of a new quest cycle
+        this.uiController.logEvent("🔍 Fetching new heart puzzle...", "event-driven");
+        
+        // INTEROPERABILITY: Making external API call to get puzzle data
+        const heartData = await this.heartService.getRandomHeart();
+        this.currentQuest = heartData;
+        
+        // SOFTWARE DESIGN: Updating game state through dedicated method
+        this.gameState.recordExploration();
+        
+        // INTEROPERABILITY: Displaying raw API response for transparency
+        this.uiController.displayAPIResponse(heartData);
+        this.uiController.logEvent(`💖 Puzzle found! Look quickly...`, "interoperability");
+        
+        // EVENT-DRIVEN: Display the image on screen
+        this.uiController.displayQuest(heartData);
+
+        // SOFTWARE DESIGN: Coordinated UI update with current stats
+        this.uiController.updateAdventureStats({
+            heartsFound: this.gameState.heartsFound,
+            questLevel: this.gameState.questLevel,
+            score: this.score
+        });
+
+        // STEP 1: Show the picture for 2 seconds
+        setTimeout(() => {
+            if (!this.isGameActive) return;
+
+            // STEP 2: Hide the picture
+            this.uiController.hideQuest();
+
+            // STEP 3: After another short delay, show the prompt
+            setTimeout(() => {
+                if (!this.isGameActive) return;
+                this.askForSolution();
+            }, 500); // 0.5 second pause before prompt appears
+        }, 2000); // picture visible for 2 seconds
+
+    } catch (error) {
+        this.uiController.logEvent(`❌ Exploration failed: ${error.message}`, "interoperability");
+        if (this.isGameActive) {
+            this.nextQuest();
+        }
+    }
+}
+
+
+            // EVENT-DRIVEN: Handles user input through browser prompt
+            askForSolution() {
+                // SOFTWARE DESIGN: Coordinating UI state with game logic
+                this.uiController.hideQuest();
+                
+                // EVENT-DRIVEN: Capturing user input through browser interaction
+                const userSolution = prompt('How many hearts did you see?');
+                if (userSolution === null) {
+                    // EVENT-DRIVEN: Handling user cancellation event
+                    this.uiController.logEvent(`🚫 Puzzle skipped.`, "event-driven");
+                    this.nextQuest();
+                    return;
+                }
+
+                const solutionNum = parseInt(userSolution, 10);
+                if (isNaN(solutionNum)) {
+                    // EVENT-DRIVEN: Handling invalid input event
+                    this.uiController.logEvent(`❌ That's not a number! Try the next puzzle.`, "event-driven");
+                } else {
+                    // EVENT-DRIVEN: Processing valid user solution
+                    this.solvePuzzle(solutionNum);
+                }
+                
+                // EVENT-DRIVEN: Continuing game loop after user interaction
+                if(this.isGameActive) {
+                    this.nextQuest();
+                }
+            }
+
+            // SOFTWARE DESIGN: Clean method for puzzle solution validation
+            solvePuzzle(userSolution) {
+                if (!this.currentQuest) return;
+
+                // SOFTWARE DESIGN: Simple, focused method for solution checking
+                const isCorrect = userSolution === this.currentQuest.solution;
+                
+                if (isCorrect) {
+                    // SOFTWARE DESIGN: Updating game state through coordinated methods
+                    this.score += 10;
+                    this.gameState.recordPuzzleSolved();
+                    this.uiController.logEvent(`✅ Correct! +10 points!`, "event-driven");
+                    
+                    // SOFTWARE DESIGN: Level progression logic
+                    if (this.gameState.puzzlesSolved % 3 === 0) {
+                        this.gameState.questLevel++;
+                        this.uiController.logEvent(`🎯 Level up! Now quest level ${this.gameState.questLevel}`, "event-driven");
+                    }
+                } else {
+                    // EVENT-DRIVEN: Feedback for incorrect solutions
+                    this.uiController.logEvent(`❌ Wrong solution. The answer was ${this.currentQuest.solution}.`, "event-driven");
+                }
+                
+                // SOFTWARE DESIGN: Coordinated UI update with game state
+                this.uiController.updateAdventureStats({
+                    heartsFound: this.gameState.heartsFound,
+                    questLevel: this.gameState.questLevel,
+                    score: this.score
+                });
+            }
+
+            // EVENT-DRIVEN: Game start triggered by user button click
+            startGame() {
+                this.isGameActive = true;
+                // SOFTWARE DESIGN: Resetting game state through dedicated method
+                this.score = 0;
+                this.gameState.startNewQuest();
+                // EVENT-DRIVEN: UI state changes in response to game start
+                this.uiController.startGameUI();
+                
+                // SOFTWARE DESIGN: Coordinated UI initialization
+                this.uiController.updateAdventureStats({
+                    heartsFound: 0,
+                    questLevel: 1,
+                    score: 0
+                });
+
+                this.uiController.logEvent("🚀 Game Started! Good luck!", "event-driven");
+                // EVENT-DRIVEN: Initiating the main game loop
+                this.nextQuest();
+            }
+
+            // EVENT-DRIVEN: Game stop triggered by user button click
+            stopGame() {
+                this.isGameActive = false;
+                // EVENT-DRIVEN: UI state changes in response to game stop
+                this.uiController.resetGameUI();
+                this.uiController.logEvent(`🛑 Game Stopped. Final Score: ${this.score}`, "event-driven");
+                // EVENT-DRIVEN: User feedback through browser alert
+                alert(`Game Over!\nYour final score is: ${this.score}`);
+            }
+        }
+
+        // =============================================================================
+        // SOFTWARE DESIGN PRINCIPLES: High Cohesion - Dedicated state management
+        // =============================================================================
+        // The QuestState class demonstrates HIGH COHESION by focusing exclusively on 
+        // game state management without any UI or API concerns.
+        class QuestState {
+            constructor() {
+                this.questLevel = 1;
+                this.isExploring = false;
+                this.heartsFound = 0;
+                this.puzzlesSolved = 0;
+                this.questStartTime = null;
+                this.explorationCount = 0;
+            }
+
+            // SOFTWARE DESIGN: Clean state initialization method
+            startNewQuest() {
+                this.questLevel = 1;
+                this.heartsFound = 0;
+                this.puzzlesSolved = 0;
+                this.isExploring = true;
+                this.questStartTime = new Date();
+                this.explorationCount = 0;
+            }
+
+            // SOFTWARE DESIGN: Focused method for tracking game progress
+            recordExploration() {
+                this.explorationCount++;
+                this.heartsFound++;
+            }
+
+            // SOFTWARE DESIGN: Dedicated method for puzzle completion tracking
+            recordPuzzleSolved() {
+                this.puzzlesSolved++;
+            }
+        }
+
+        // =============================================================================
+        // INTEROPERABILITY: External API Communication
+        // =============================================================================
+        // The HeartAPIService class demonstrates INTEROPERABILITY by handling all 
+        // communication with the external Heart API, including error handling and fallbacks.
+        class HeartAPIService {
+            constructor() {
+                // INTEROPERABILITY: External API endpoint configuration
+                this.baseURL = 'https://marcconrad.com/uob/heart/api.php?out=csv&base64=yes';
+                this.isConnected = false;
+            }
+            
+            // INTEROPERABILITY: Initial connection test to external service
+            async initialize() {
+                try {
+                    const testResult = await this.getRandomHeart();
+                    this.isConnected = true;
+                    return testResult;
+                } catch (error) {
+                    console.error("API connection failed:", error);
+                    throw new Error("Cannot connect to Heart Quest API");
+                }
+            }
+            
+            // INTEROPERABILITY: Main method for fetching data from external API
+            async getRandomHeart() {
+                try {
+                    // INTEROPERABILITY: Using fetch API for HTTP communication
+                    const response = await fetch(this.baseURL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    // INTEROPERABILITY: Processing CSV response format
+                    const csvText = await response.text();
+                    const [base64, solution] = csvText.split(',');
+
+                    // INTEROPERABILITY: Transforming external data for internal use
+                    return {
+                        imageBase64: base64,
+                        solution: parseInt(solution, 10),
+                        imageUrl: `data:image/png;base64,${base64}`
+                    };
+                } catch (error) {
+                    // INTEROPERABILITY: Graceful fallback when external service fails
+                    console.error("API request failed:", error);
+                    return this.getMockHeartData();
+                }
+            }
+            
+            // INTEROPERABILITY: Fallback system for when external API is unavailable
+            getMockHeartData() {
+                const mockHearts = [
+                    { solution: 5, imageUrl: "https://via.placeholder.com/300x200/ff6b6b/white?text=Magic+Heart+5" },
+                    { solution: 8, imageUrl: "https://via.placeholder.com/300x200/ff8e8e/white?text=Magic+Heart+8" },
+                    { solution: 3, imageUrl: "https://via.placeholder.com/300x200/ff5252/white?text=Magic+Heart+3" }
+                ];
+                return mockHearts[Math.floor(Math.random() * mockHearts.length)];
+            }
+        }
+
+        // =============================================================================
+        // SOFTWARE DESIGN PRINCIPLES: High Cohesion - UI Management
+        // =============================================================================
+        // The AdventureUIController class demonstrates HIGH COHESION by handling all 
+        // user interface updates without any game logic or API communication.
+        class AdventureUIController {
+            constructor(game) {
+                this.game = game;
+                this.setupUIElements();
+            }
+
+            // SOFTWARE DESIGN: Centralized UI element initialization
+            setupUIElements() {
+                this.adventurerInfoElement = document.getElementById('playerInfo');
+                this.questDisplayElement = document.getElementById('questDisplay');
+                this.questOverlayElement = document.getElementById('questOverlay');
+                this.eventLogElement = document.getElementById('eventLog');
+                this.apiResponseElement = document.getElementById('apiResponse');
+                this.heartsFoundElement = document.getElementById('heartsFound');
+                // MODIFICATION: Removed questLevelElement
+                this.adventurerScoreElement = document.getElementById('adventurerScore');
+                
+                // EVENT-DRIVEN: UI elements that will trigger game events
+                this.startBtn = document.getElementById('startBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+            }
+
+            // VIRTUAL IDENTITY: Displaying player identity information in UI
+            updateAdventurerInfo(adventurer) {
+                this.adventurerInfoElement.innerHTML = `
+                    <p><strong>Adventurer ID:</strong> ${adventurer.id}</p>
+                    <p><strong>Name:</strong> ${adventurer.name}</p>
+                    <p><strong>Roll no:</strong> ${adventurer.class}</p>
+                    <p><strong>Session:</strong> ${new Date(adventurer.sessionStart).toLocaleTimeString()}</p>
+                    <p><strong>Status:</strong> <span style="color: green;">Ready</span></p>
+                `;
+            }
+
+            // EVENT-DRIVEN: UI update for displaying new quest content
+            displayQuest(questData) {
+                this.questDisplayElement.innerHTML = `
+                    <img src="${questData.imageUrl}" alt="Heart Puzzle" class="quest-image">
+                    <div class="quest-overlay">How many hearts?</div>
+                `;
+                this.questDisplayElement.classList.remove("hidden");
+            }
+            
+            // EVENT-DRIVEN: UI update for hiding quest content
+            hideQuest() {
+                this.questDisplayElement.innerHTML = `
+                    <div class="quest-overlay">Waiting for next puzzle...</div>
+                `;
+            }
+
+            // SOFTWARE DESIGN: Coordinated UI update for game statistics
+            updateAdventureStats(stats) {
+                this.heartsFoundElement.textContent = stats.heartsFound;
+                // MODIFICATION: Removed line updating questLevelElement
+                this.adventurerScoreElement.textContent = stats.score;
+            }
+
+            // EVENT-DRIVEN: Logging system for game events with theme categorization
+            logEvent(eventMessage, theme) {
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                eventItem.innerHTML = `<span class="theme-indicator ${theme}">${this.getThemeLabel(theme)}</span> ${eventMessage}`;
+                this.eventLogElement.appendChild(eventItem);
+                this.eventLogElement.scrollTop = this.eventLogElement.scrollHeight;
+            }
+
+            // INTEROPERABILITY: Displaying raw API responses for transparency
+            displayAPIResponse(responseData) {
+                this.apiResponseElement.textContent = JSON.stringify(responseData, null, 2);
+            }
+
+            // EVENT-DRIVEN: UI state management for game controls
+            setupInitialUI() {
+                this.startBtn.disabled = false;
+                this.stopBtn.disabled = true;
+            }
+            
+            // EVENT-DRIVEN: UI state changes when game starts
+            startGameUI() {
+                this.startBtn.disabled = true;
+                this.stopBtn.disabled = false;
+            }
+            
+            // EVENT-DRIVEN: UI state changes when game resets
+            resetGameUI() {
+                this.startBtn.disabled = false;
+                this.stopBtn.disabled = true;
+                this.questDisplayElement.innerHTML = `
+                    <div class="quest-overlay">Click "Start Game" to begin!</div>
+                `;
+            }
+
+            // SOFTWARE DESIGN: Helper method for theme labeling
+            getThemeLabel(theme) {
+                const labels = {
+                    'virtual-identity': 'Identity',
+                    'event-driven': 'Event',
+                    'interoperability': 'API',
+                    'design-principles': 'Design'
+                };
+                return labels[theme] || 'System';
+            }
+        }
+
+        // =============================================================================
+        // EVENT-DRIVEN PROGRAMMING: User Interaction Handling
+        // =============================================================================
+        // The AdventureEventCoordinator class demonstrates EVENT-DRIVEN PROGRAMMING
+        // by setting up and managing all user interaction event handlers.
+        class AdventureEventCoordinator {
+            constructor(game) {
+                this.game = game;
+                this.setupEventHandlers();
+            }
+
+            // EVENT-DRIVEN: Centralized setup of all user interaction handlers
+            setupEventHandlers() {
+                // EVENT-DRIVEN: Button click event for starting the game
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    this.game.startGame();
+                });
+
+                // EVENT-DRIVEN: Button click event for stopping the game
+                document.getElementById('stopBtn').addEventListener('click', () => {
+                    this.game.stopGame();
+                });
+            }
+        }
+        
+        // =============================================================================
+        // VIRTUAL IDENTITY: Player Session Management
+        // =============================================================================
+        // The page load logic demonstrates VIRTUAL IDENTITY by checking for existing
+        // player sessions and managing authentication state.
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // VIRTUAL IDENTITY: Checking for existing player session in localStorage
+            const adventurerData = localStorage.getItem('heartQuestAdventurer');
+            
+            if (!adventurerData) {
+                // VIRTUAL IDENTITY: Redirecting to login if no identity exists
+                alert('You must create an adventurer first!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // VIRTUAL IDENTITY: Restoring player identity from stored session data
+            const adventurer = JSON.parse(adventurerData);
+            const adventureGame = new AdventureGame();
+            window.heartQuestAdventure = adventureGame;
+            
+            try {
+                // VIRTUAL IDENTITY: Recreating player identity from stored data
+                adventureGame.createAdventurer(adventurer.name, adventurer.class);
+                // INTEROPERABILITY: Preparing API connection for game
+                adventureGame.prepareGame();
+            } catch (error) {
+                console.error("Failed to load game:", error);
+                // VIRTUAL IDENTITY: Clearing invalid session data
+                localStorage.removeItem('heartQuestAdventurer');
+                window.location.href = 'login.html';
+            }
+            
+            console.log(`🎮 Heart Quest Adventure initialized for ${adventurer.name}!`);
+            console.log("Press 'Start Game' to begin.");
+        });
+    </script>
+</body>
+</html>
